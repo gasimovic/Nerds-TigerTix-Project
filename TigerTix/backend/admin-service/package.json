@@ -1,0 +1,23 @@
+{
+  "name": "tiger-tix-admin-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Admin microservice for TigerTix: creates events and persists them to a shared SQLite database.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint:fix": "eslint . --fix || true"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.2.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^9.10.0",
+    "nodemon": "^3.1.0"
+  }
+}
