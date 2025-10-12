@@ -25,6 +25,7 @@ const createEventHandler = async (req, res, next) => {
   }
 };
 
+//lists all events
 const listEventsHandler = async (_req, res, next) => { //lists all events
   try {
     const events = await listEvents();
