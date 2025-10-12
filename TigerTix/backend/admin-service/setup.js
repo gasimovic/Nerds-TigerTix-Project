@@ -6,6 +6,11 @@ const fs = require('fs');
 const path = require('path');
 const { getDb } = require('./models/db');
 
+/*
+Input: None
+Output: None
+Purpose: Ensure the database schema is set up.
+*/
 const ensureSchema = async () => {
   const db = await getDb();
   const initSqlPath = path.join(__dirname, '..', 'shared-db', 'init.sql');

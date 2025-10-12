@@ -1,3 +1,8 @@
+/*
+Input: A function to handle performance entries (onPerfEntry)
+Output: None
+Purpose: Measure and report web vitals for performance monitoring.
+*/
 const reportWebVitals = onPerfEntry => {
   if (onPerfEntry && onPerfEntry instanceof Function) {
     import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {

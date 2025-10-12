@@ -11,28 +11,36 @@ app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); //Parse JSON request bodies
 
 
-app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'client' }));// Health check endpoint
+// Health check endpoint
+app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'client' }));
 
 applyClientRoutes(app); // Apply client-related routes to the app
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
-  res.status(404).json({ error: 'Not Found', path: req.originalUrl }); // Return 404 for unknown routes
+  // Return 404 for unknown routes
+  res.status(404).json({ error: 'Not Found', path: req.originalUrl });
 });
 
 // Global error handler
 app.use((err, _req, res, _next) => { 
   console.error('Unhandled error:', err); // Log the error for debugging
-  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' }); // Return error response
+  // Return error response
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });
 
 const PORT = process.env.PORT || 6001; // Use port 6001
 
-
+/*
+Input: None
+Output: None
+Purpose: Ensure the database schema is set up, then start the server.
+*/
 ensureSchema() //ensure the database schema is set up
   .then(() => {
     app.listen(PORT, () => { // Start the server
-      console.log(`Client service listening on http://localhost:${PORT}`); // log server start message
+      // log server start message
+      console.log(`Client service listening on http://localhost:${PORT}`);
     });
   })
   .catch((e) => { // Handle errors during schema setup

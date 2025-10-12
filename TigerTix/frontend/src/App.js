@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react"; // React library
 import "./App.css"; // Import CSS
 
-// Main application 
+// Main application
+/*
+Input: None
+Output: Rendered App component
+*/ 
 function App() {
   const [events, setEvents] = useState([]); // hold events
   const [loading, setLoading] = useState(true); // track loading status
 
   // Load events from the client-service
+  /*
+  Input: None
+  Output: None
+  Purpose: Load events from the client-service.
+  */
   const loadEvents = () => {
     setLoading(true); // if loading
     fetch("http://localhost:6001/api/client/events") // Fetch events from 6001
@@ -16,11 +25,17 @@ function App() {
       .finally(() => setLoading(false)); // stop loading
   };
 
+  // Load events on component mount
   useEffect(() => {
     loadEvents(); // Load events
   }, []);
 
   // Buy 1 ticket for an event by id
+  /*
+  Input: eventId (ID of the event to buy a ticket for)
+  Output: None
+  Purpose: Buy 1 ticket for an event by ID.
+  */
   const buyTicket = async (eventId) => {
     try { 
       const res = await fetch("http://localhost:6001/api/client/purchase", { // POST to purchase endpoint
