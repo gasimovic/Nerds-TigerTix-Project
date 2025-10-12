@@ -40,25 +40,44 @@ function App() {
   };
 
   // Render the app UI
-  return (
-    <div className="App" style={{ padding: 16 }}> 
-      <h1>Clemson Campus Events</h1>
-      {loading && <p>Loading…</p>}
-      {!loading && events.length === 0 && <p>No events yet.</p>}
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {events.map((event) => (
-          <li key={event.id} style={{ marginBottom: 12, borderBottom: "1px solid #eee", paddingBottom: 12 }}>
-            <h3 style={{ margin: "4px 0" }}>{event.name}</h3>
-            <div>Date: {event.date}</div>
-            <div>Tickets Available: {event.tickets_available}</div>
-            <button onClick={() => buyTicket(event.id)} style={{ marginTop: 8 }}>
-              Buy Ticket
-            </button>
-          </li>
-        ))}
+return (
+  <main className="App" aria-labelledby="page-title">
+    <h1 id="page-title">Clemson Campus Events</h1>
+
+    {(!events || events.length === 0) ? (
+      <p>No events yet.</p>
+    ) : (
+      <ul>
+        {events.map((ev) => {
+          const soldOut = Number(ev.tickets_available) <= 0;
+          return (
+            <li key={ev.id}>
+              <article aria-labelledby={`event-${ev.id}-title`}>
+                <h2 id={`event-${ev.id}-title`}>{ev.name}</h2>
+                <p><strong>Date:</strong> {ev.date}</p>
+                <p>
+                  <strong>Tickets Available:</strong>{" "}
+                  <span aria-live="polite">{ev.tickets_available}</span>
+                </p>
+                <button
+                  onClick={() => buyTicket(ev.id)}
+                  disabled={soldOut}
+                  aria-label={
+                    soldOut
+                      ? `${ev.name} is sold out`
+                      : `Buy 1 ticket for ${ev.name}`
+                  }
+                >
+                  {soldOut ? "Sold Out" : "Buy Ticket"}
+                </button>
+              </article>
+            </li>
+          );
+        })}
       </ul>
-    </div>
-  );
+    )}
+  </main>
+);
 }
 
 export default App;

@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+/*Make keyboard focus clearly visible across the app */
+:focus-visible {
+  outline: 3px solid #ff8800;
+  outline-offset: 2px;
+}
+
+/* Nice-to-have: make disabled Buy buttons look disabled */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
