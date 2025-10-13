@@ -14,7 +14,7 @@ app.use(express.json()); //Parse JSON request bodies
 // Health check endpoint
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'client' }));
 
-applyClientRoutes(app); // Apply client-related routes to the app
+applyClientRoutes(app); // Apply client-related routes to the app 
 
 // 404 handler for unmatched routes
 app.use((req, res) => {

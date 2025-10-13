@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"; // React library
+// 4.2
 import "./App.css"; // Import CSS
 
 // Main application
@@ -18,6 +19,7 @@ function App() {
   */
   const loadEvents = () => {
     setLoading(true); // if loading
+    // 3.1
     fetch("http://localhost:6001/api/client/events") // Fetch events from 6001
       .then((res) => res.json())
       .then((data) => setEvents(data))
@@ -38,6 +40,7 @@ function App() {
   */
   const buyTicket = async (eventId) => {
     try { 
+      // 3.2
       const res = await fetch("http://localhost:6001/api/client/purchase", { // POST to purchase endpoint
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,7 +57,8 @@ function App() {
     }
   };
 
-  // Render the app UI
+// Render the app UI
+// 4.1
 return (
   <main className="App" aria-labelledby="page-title">
     <h1 id="page-title">Clemson Campus Events</h1>

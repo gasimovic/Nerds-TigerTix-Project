@@ -1,4 +1,4 @@
-// Route declarations for the Admin microservice.
+// Route declarations for the Admin microservice. 
 
 const express = require('express');
 const { body } = require('express-validator');
@@ -17,9 +17,11 @@ const createEventRules = [
     .toInt()
 ];
 
+// 1.1
 router.post('/events', ...createEventRules, createEventHandler);
 router.get('/events', listEventsHandler);
 
+//
 function applyAdminRoutes(app) {
   app.use('/api/admin', router);
 }

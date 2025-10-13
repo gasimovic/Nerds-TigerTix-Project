@@ -5,6 +5,7 @@ const { listEventsHandler, purchaseHandler } = require('../controllers/clientCon
 
 const router = express.Router();
 
+// 2.1
 router.get('/events', listEventsHandler);
 
 const purchaseRules = [

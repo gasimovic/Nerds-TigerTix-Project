@@ -4,7 +4,7 @@ const sqlite3 = require('sqlite3').verbose(); //verbose mode for  error messages
 const path = require('path'); //file path module
 const fs = require('fs'); //file system module
 
-let _db = null; //database instance
+let _db = null; //database instance  
 
 //gets database instance/creates it if not created
 const getDb = async () => {

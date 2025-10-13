@@ -28,6 +28,7 @@ async function purchaseTickets({ eventId, quantity }) {
   }
 
   // Check if enough tickets are available and update atomically
+  // 2.2
   const result = await runAsync(db, // 30-33 sqlite commands to update tickets
     `UPDATE events
      SET tickets_available = tickets_available - ?

@@ -1,7 +1,8 @@
-// Data access layer for events in the Admin microservice.
+// Data access layer for events in the Admin microservice. 
 
 const { getDb, runAsync, getAsync, allAsync } = require('./db');
 
+// 1.2
 async function createEvent({ name, date, totalTickets }) {
   const db = await getDb();
   const sql = `INSERT INTO events (name, date, total_tickets, tickets_available)

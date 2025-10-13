@@ -8,7 +8,7 @@ const listEventsHandler = async (_req, res, next) => {
   try {
     const events = await listPublicEvents(); // Fetch public events from model
     res.json(events); // Send events as JSON response
-  } catch (err) { // Error handling
+  } catch (err) { // Error handling 
     next(err);
   }
 };
@@ -16,6 +16,7 @@ const listEventsHandler = async (_req, res, next) => {
 // Handler to purchase tickets
 const purchaseHandler = async (req, res, next) => { // Validates input
   try { // Check for validation errors
+    // 2.3
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() }); // 400 Bad Request for validation errors

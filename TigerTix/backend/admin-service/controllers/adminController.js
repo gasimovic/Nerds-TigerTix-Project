@@ -7,7 +7,8 @@ const { createEvent, listEvents } = require('../models/adminModel');
 //creates event handler
 const createEventHandler = async (req, res, next) => {
   try {
-    const errors = validationResult(req); //creats errors object
+    // 1.3
+    const errors = validationResult(req); //creats errors object 
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }

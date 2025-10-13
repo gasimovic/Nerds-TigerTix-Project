@@ -15,7 +15,7 @@ const ensureSchema = async () => {
   const initSqlPath = path.join(__dirname, '..', 'shared-db', 'init.sql');
   if (fs.existsSync(initSqlPath)) { // Check if the SQL file exists
     const sql = fs.readFileSync(initSqlPath, 'utf-8'); // Read the SQL file content
-    // Execute the SQL commands to set up the schema
+    // Execute the SQL commands to set up the schema 
     await new Promise((resolve, reject) => db.exec(sql, (err) => err ? reject(err) : resolve()));
   }
 };
