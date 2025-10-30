@@ -1,9 +1,35 @@
+# --- OS / Editor ---
 .DS_Store
-*.sqlite
+.vscode/
+.idea/
+
+# --- Node modules (root + all services) ---
 node_modules/
 backend/**/node_modules/
 frontend/node_modules/
+
+# --- Local SQLite databases ---
 *.sqlite
 *.db
-npm-debug.log
+
+# --- Environment secrets (keep .env.example) ---
+.env
+**/.env
+!.env.example
+!**/.env.example
+
+# --- Logs & caches ---
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 *.log
+.cache/
+.parcel-cache/
+
+# --- Build output / coverage ---
+build/
+dist/
+coverage/
+
+# --- Archives ---
+*.zip

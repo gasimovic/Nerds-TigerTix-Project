@@ -41,7 +41,7 @@ const PORT = process.env.PORT || 5001;
 Input: None
 Output: None
 Purpose: Ensure the database schema is set up, then start the server.
-*/
+*/ 
 ensureSchema()
   .then(() => {
     app.listen(PORT, () => {
