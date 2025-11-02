@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"; // React library
 // 4.2
 import "./App.css"; // Import CSS
+import SpeechToText from "./SpeechToText";
 
 // Main application
 /*
@@ -67,6 +68,11 @@ return (
       <p>No events yet.</p>
     ) : (
       <ul>
+        <div>
+            <div>
+                <SpeechToText></SpeechToText>
+            </div>
+        </div>
         {events.map((ev) => {
           const soldOut = Number(ev.tickets_available) <= 0;
           return (
