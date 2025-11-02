@@ -6,6 +6,24 @@ function SpeechToText() {
   const recognitionRef = useRef(null);
   const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
+  const [loading, setLoading] = useState(true); // track loading status
+  const [llmResponse, setLLMResponse] = useState("");
+
+  // Loads the LLM's response from the llm-service
+  /*
+  Input: None
+  Output: None
+  Purpose: Load events from the llm-service.
+  */
+  const loadLLMResponse = () => {
+    setLoading(true); // if loading
+    // 3.1
+    fetch("http://localhost:7001/api/client/events") // Fetch events from 7001
+      .then((res) => res.json())
+      .then((data) => setLLMResponse(data))
+      .catch((err) => console.error("Error fetching events:", err)) // error message and log
+      .finally(() => setLoading(false)); // stop loading
+  };
 
   const startListening = () => {
     if (!SpeechRecognition) {
@@ -53,17 +71,34 @@ function SpeechToText() {
             </button>
         </div>
 
-      <textarea
-        rows="1"
-        value={text}
-        placeholder="Your speech will appear here..."
-        onChange={(e) => setText(e.target.value)}
-        style={{ 
-            marginTop: "16px", 
-            width: "360px", 
-            padding: "8px"
-        }}
-      />
+    <div>
+        <textarea
+            rows="1"
+            value={text}
+            placeholder="Your speech will appear here..."
+            onChange={(e) => setText(e.target.value)}
+            style={{ 
+                marginTop: "16px", 
+                width: "360px", 
+                padding: "8px"
+            }}
+        />
+    </div>
+    
+    <div>
+        <textarea
+            rows="1"
+            value={text}
+            placeholder="LLM response will appear here..."
+            onChange={(e) => setText(e.target.value)}
+            style={{ 
+                marginTop: "16px", 
+                width: "360px", 
+                padding: "8px"
+            }}
+        />
+    </div>
+      
     </div>
   );
 }
