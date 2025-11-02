@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 Input: None
 Output: None
 */
-function SpeechToText() {
+function SpeechToText(props) {
     const SpeechRecognition =
         window.SpeechRecognition || window.webkitSpeechRecognition; // Web Speech API
     const recognitionRef = useRef(null);
@@ -14,6 +14,8 @@ function SpeechToText() {
     const [text, setText] = useState("");
     const [loading, setLoading] = useState(true);
     const [llmResponse, setLLMResponse] = useState(""); // stores the llm's response
+    // Sprint 2, Task 2 - keep last parse result (proposal) for confirmation
+    const [llmParsed, setLlmParsed] = useState(null);
 
     // Sprint 2, Task 2 - Text-to-Speech Response
     /*
@@ -35,6 +37,16 @@ function SpeechToText() {
     Purpose: Waits until the final utterance is sent, then gets the proposed bookings.
     */
     const onSpeechFinal = (usersSpeechFinal) => {
+        // If user says confirm/yes and we have a pending proposal, confirm instead of re-parsing
+        const cleaned = (usersSpeechFinal || "").trim().toLowerCase();
+        if (
+            llmParsed?.requires_confirmation &&
+            ["confirm", "yes", "y", "ok", "okay", "go ahead"].includes(cleaned)
+        ) {
+            confirmBookingFromProposal();
+            setUsersSpeech("");
+            return;
+        }
         setUsersSpeech(usersSpeechFinal);
         getProposedBookingsFromLLM(usersSpeechFinal);
     }
@@ -57,9 +69,50 @@ function SpeechToText() {
 
         const data = await response.json(); // gets the LLM's response
 
+        // keep entire parse payload (may include proposal + requires_confirmation)
+        setLlmParsed(data);
+
         setLLMResponse(data.message); // sets the LLM's response
 
         speak(data.message); // speaks the LLM's response
+    }
+
+    // Sprint 2, Task 2 - Confirm booking using last proposal
+    const confirmBookingFromProposal = async () => {
+        try {
+            if (!llmParsed?.proposal) {
+                setLLMResponse("Nothing to confirm.");
+                speak("Nothing to confirm.");
+                return;
+            }
+            const res = await fetch("http://localhost:7001/api/llm/confirm", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    eventId: llmParsed.proposal.eventId,
+                    quantity: llmParsed.proposal.quantity,
+                    confirm: true
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setLLMResponse(data.error || "Confirm failed");
+                speak(data.error || "Confirm failed");
+                return;
+            }
+            setLLMResponse(data.message || "Booking confirmed");
+            setLlmParsed(null);
+            speak(data.message || "Booking confirmed");
+            // Clear the last utterance so we don't auto re-parse on stop
+            setUsersSpeech("");
+            // Notify parent (optional) to refresh event list
+            if (typeof props?.onConfirmed === "function") {
+                try { props.onConfirmed(); } catch (e) {}
+            }
+        } catch (e) {
+            setLLMResponse("Error confirming booking");
+            speak("Error confirming booking");
+        }
     }
 
     // Sprint 2, Task 2 - Voice Input Capture
@@ -112,7 +165,8 @@ function SpeechToText() {
     const stopListening = () => {
         recognitionRef.current?.stop(); // stops speech recognition
         setListening(false);
-        getProposedBookingsFromLLM(); // gets the proposed bookings from the LLM
+        // Do not auto-parse here; onSpeechFinal already handled final text.
+        // Auto-parsing here can cause a stale re-parse after confirmations.
     }
 
     // Renders the speech to text UI features

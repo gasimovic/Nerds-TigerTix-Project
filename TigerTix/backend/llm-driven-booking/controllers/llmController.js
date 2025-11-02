@@ -12,7 +12,10 @@ const { parseWithLlm } = require('../services/llm');
 
 // Export validators and handlers
 const parseValidators = [
-  body('text').isString().isLength({ min: 1 }).withMessage('text is required')
+  body('text').isString().isLength({ min: 1 }).withMessage('text is required'),
+  body('proposal').optional().isObject(),
+  body('proposal.eventId').optional().isInt({ min: 1 }),
+  body('proposal.quantity').optional().isInt({ min: 1 })
 ];
 //confirmation validators
 const confirmValidators = [
@@ -26,17 +29,44 @@ async function parseHandler(req, res, next) {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-// get available events
+    // get available events
     const { text } = req.body;
+
+    // Convenience: if user says "confirm" and a prior proposal is provided, book here
+    const { proposal } = req.body;
+    const confirmWords = /^(confirm|yes|y|ok|okay|go ahead)$/i;
+    if (confirmWords.test(String(text)) && proposal?.eventId && proposal?.quantity) {
+      const target = await getEventById(Number(proposal.eventId));
+      if (!target) return res.status(404).json({ error: 'Event not found' });
+
+      if (target.tickets_available < Number(proposal.quantity)) {
+        return res.status(409).json({
+          error: 'Not enough tickets available for that quantity',
+          available: target.tickets_available
+        });
+      }
+
+      const result = await confirmBooking({
+        eventId: Number(proposal.eventId),
+        quantity: Number(proposal.quantity)
+      });
+
+      return res.status(200).json({
+        message: 'Booking confirmed',
+        event: result.event,
+        from: 'confirm-in-parse'
+      });
+    }
+
     const events = await listAvailableEvents();
     const parsed = await parseWithLlm(text, events);
-// resolve event ID if missing
+    // resolve event ID if missing
     let resolved = { ...parsed };
     if (!resolved.eventId && resolved.eventName) {
       const ev = await getEventByNameApprox(resolved.eventName);
       if (ev) { resolved.eventId = ev.id; resolved.eventName = ev.name; }
     }
-// decide next steps
+    // decide next steps
     if (resolved.intent !== 'book' || !resolved.eventId) {
       return res.status(200).json({
         message: "I can help you book tickets. Please say, e.g., 'Book two tickets for Jazz Night.'",
@@ -57,7 +87,7 @@ async function parseHandler(req, res, next) {
         available: target.tickets_available// available tickets
       });
     }
-// return booking proposal
+    // return booking proposal
     return res.status(200).json({
       message: `Confirm booking ${resolved.quantity} ticket(s) for "${target.name}" on ${target.date}?`, // confirmation message
       proposal: { eventId: target.id, eventName: target.name, quantity: resolved.quantity },// booking proposal
