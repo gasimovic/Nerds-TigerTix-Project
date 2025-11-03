@@ -180,6 +180,7 @@ function SpeechToText(props) {
 
         <div>
             <textarea
+                data-testid="userSpeach"
                 rows="1"
                 value={usersSpeech}
                 placeholder="Your speech will appear here..."
