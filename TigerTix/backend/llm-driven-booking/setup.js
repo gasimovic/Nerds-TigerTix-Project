@@ -1,4 +1,4 @@
-
+//Sprint 2 - Task 1
 const { getDb, runAsync } = require('./models/db');
 
 async function ensureSchema() {

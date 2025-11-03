@@ -1,6 +1,7 @@
 /**
  * Controller: LLM parse + confirmation booking flow
  */
+// Sprint 2 Task 1 
 const { body, validationResult } = require('express-validator');
 const {
   listAvailableEvents,

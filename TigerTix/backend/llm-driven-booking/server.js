@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 7001; //port to 7001
 ensureSchema()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`LLM booking service listening on http://localhost:${PORT}`);
+      console.log(`LLM booking service listening on http://localhost:${PORT}`); //server start log on 7001
     });
   })
   .catch((e) => {
