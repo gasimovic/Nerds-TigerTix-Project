@@ -48,3 +48,22 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Sprint 3: center the User Authentication section */
+section[aria-labelledby="auth-heading"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center the heading + forms horizontally */
+}
+
+.auth-forms {
+  display: flex;
+  justify-content: center;  /* center the group of forms */
+  gap: 3rem;                /* space between Login and Register forms */
+  margin-top: 1rem;
+}
+
+.auth-forms form {
+  display: inline-block;
+  text-align: left;         /* keep labels/inputs left-aligned inside forms */
+}

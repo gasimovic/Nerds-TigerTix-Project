@@ -11,6 +11,14 @@ Output: Rendered App component
 function App() {
   const [events, setEvents] = useState([]); // hold events
   const [loading, setLoading] = useState(true); // track loading status
+  // === Sprint 3: Auth state (in-memory JWT) ===
+  const [authToken, setAuthToken] = useState(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState(null);
+  const [authError, setAuthError] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
 
   // === Sprint 2: LLM helpers (Task 1) ===
   // Sprint 2 Task 1 (frontend helper state
@@ -86,6 +94,68 @@ function App() {
     await llmParse(input);           // parse using the text the user just typed
   }
 
+  // === Sprint 3: User Authentication (Task 1) ===
+  // Register new user via user-authentication service
+  async function handleRegister(e) {
+    e.preventDefault();
+    setAuthError("");
+    try {
+      const res = await fetch("http://localhost:9001/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: registerEmail,
+          password: registerPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || "Registration failed");
+        return;
+      }
+      // Optionally auto-fill login email and clear password
+      setLoginEmail(registerEmail);
+      setRegisterPassword("");
+      alert("Registration successful. You can now log in.");
+    } catch (err) {
+      setAuthError("Registration error");
+    }
+  }
+
+  // Login and store token in memory
+  async function handleLogin(e) {
+    e.preventDefault();
+    setAuthError("");
+    try {
+      const res = await fetch("http://localhost:9001/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || "Login failed");
+        return;
+      }
+      setAuthToken(data.token);
+      setCurrentUserEmail(data.user.email);
+      setLoginPassword("");
+    } catch (err) {
+      setAuthError("Login error");
+    }
+  }
+
+  function handleLogout() {
+    setAuthToken(null);
+    setCurrentUserEmail(null);
+    setAuthError("");
+    setLoginEmail("");
+    setLoginPassword("");
+  }
+
   // === Sprint 1: Client microservice integration (Task 3) ===
   // Load events from the client-service
   /*
@@ -122,11 +192,18 @@ function App() {
       // 3.2
       const res = await fetch("http://localhost:6001/api/client/purchase", { // POST to purchase endpoint
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
         body: JSON.stringify({ eventId, quantity: 1 }),
       });
       if (!res.ok) { // If response not ok
         const err = await res.json().catch(() => ({})); //parse error message
+        if (res.status === 401) {
+          alert("Session expired or not logged in. Please log in again.");
+          handleLogout();
+        }
         throw new Error(err.error || `Purchase failed (${res.status})`); // throw error
       }
       // refresh list after purchase
@@ -141,6 +218,89 @@ function App() {
 return (
   <main className="App" aria-labelledby="page-title">
     <h1 id="page-title">Clemson Campus Events</h1>
+    {/* === Sprint 3: Auth UI (in-memory JWT) === */}
+    <section
+      aria-labelledby="auth-heading"
+      style={{
+        border: "1px solid #ddd",
+        padding: "12px",
+        marginBottom: "16px",
+        borderRadius: "8px",
+      }}
+    >
+      <h2 id="auth-heading">User Authentication</h2>
+
+      {currentUserEmail ? (
+        <>
+          <p>
+            Logged in as <strong>{currentUserEmail}</strong>
+          </p>
+          <button type="button" onClick={handleLogout}>
+            Logout
+          </button>
+        </>
+      ) : (
+        <div className="auth-forms">
+          {/* Login form */}
+          <form onSubmit={handleLogin}>
+            <h3>Login</h3>
+            <div>
+              <label htmlFor="login-email">Email:</label>{" "}
+              <input
+                id="login-email"
+                type="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="login-password">Password:</label>{" "}
+              <input
+                id="login-password"
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit">Login</button>
+          </form>
+
+          {/* Register form */}
+          <form onSubmit={handleRegister}>
+            <h3>Register</h3>
+            <div>
+              <label htmlFor="register-email">Email:</label>{" "}
+              <input
+                id="register-email"
+                type="email"
+                value={registerEmail}
+                onChange={(e) => setRegisterEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="register-password">Password:</label>{" "}
+              <input
+                id="register-password"
+                type="password"
+                value={registerPassword}
+                onChange={(e) => setRegisterPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit">Register</button>
+          </form>
+        </div>
+      )}
+
+      {authError && (
+        <p role="alert" style={{ color: "red", marginTop: "8px" }}>
+          {authError}
+        </p>
+      )}
+    </section>
     {loading && <p>Loading…</p>}
 
     {/*Sprint 2 - Task 1: Text chat UI*/}
@@ -162,7 +322,6 @@ return (
       Type <em>confirm</em> to proceed (or click Confirm below).
       </p>
 
-      {/* Show parse result and offer confirmation if required */}
       {llmParsed && (
         <div role="status" aria-live="polite" style={{ marginTop: 8 }}>
           {llmParsed.message && <p>{llmParsed.message}</p>}
