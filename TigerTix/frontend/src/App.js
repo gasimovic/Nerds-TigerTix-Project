@@ -110,7 +110,8 @@ function App() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setAuthError(data.error || "Registration failed");
+        // Show a clearer message when registration fails (e.g., password too short)
+        setAuthError("Password must be at least 6 characters");
         return;
       }
       // Optionally auto-fill login email and clear password
@@ -228,7 +229,7 @@ return (
         borderRadius: "8px",
       }}
     >
-      <h2 id="auth-heading">User Authentication</h2>
+      <h2 id="auth-heading">Account</h2>
 
       {currentUserEmail ? (
         <>
