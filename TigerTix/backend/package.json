@@ -12,5 +12,11 @@
   "type": "commonjs",
   "devDependencies": {
     "jest": "^30.2.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express-validator": "^7.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.7"
   }
 }
