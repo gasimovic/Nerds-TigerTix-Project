@@ -2,9 +2,19 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
+/**
+ * Middleware: JWT-based authentication for protected routes
+ */
+// Sprint 3 Task 1
+
+/**
+ * Sprint 3 Task 1:
+ * Verify the Authorization Bearer token, decode the payload,
+ * and attach the current user (id + email) to req.user.
+ */
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization || '';
-  const [, token] = authHeader.split(' '); 
+  const [, token] = authHeader.split(' '); // Expect "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ error: 'Missing token' });

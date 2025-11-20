@@ -1,4 +1,3 @@
-// controllers/authController.js
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -10,7 +9,16 @@ const {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
+/**
+ * Controller: User authentication (registration, login, profile)
+ */
+// Sprint 3 Task 1
+
 // Validators
+/**
+ * Sprint 3 Task 1:
+ * Validation rules for user registration (email + min 6-char password).
+ */
 const registerValidators = [
   body('email').isEmail().withMessage('Valid email required'),
   body('password')
@@ -18,11 +26,20 @@ const registerValidators = [
     .withMessage('Password must be at least 6 characters')
 ];
 
+/**
+ * Sprint 3 Task 1:
+ * Validation rules for user login (email + non-empty password).
+ */
 const loginValidators = [
   body('email').isEmail().withMessage('Valid email required'),
   body('password').isString().isLength({ min: 1 }).withMessage('Password required')
 ];
 
+/**
+ * Sprint 3 Task 1:
+ * Handle user registration: validate input, check for existing account,
+ * hash the password, and create a new user record.
+ */
 async function registerHandler(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -49,6 +66,11 @@ async function registerHandler(req, res) {
   }
 }
 
+/**
+ * Sprint 3 Task 1:
+ * Handle user login: validate input, verify credentials, and
+ * return a signed JWT (30-minute expiry) on success.
+ */
 async function loginHandler(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -85,7 +107,11 @@ async function loginHandler(req, res) {
   }
 }
 
-// GET /profile (example protected route)
+/**
+ * Sprint 3 Task 1:
+ * Example protected route: return the current user's profile
+ * using the user id attached by auth middleware.
+ */
 async function profileHandler(req, res) {
   try {
     const user = await getUserById(req.user.id);
