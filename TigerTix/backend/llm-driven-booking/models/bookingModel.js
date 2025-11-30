@@ -3,8 +3,26 @@
 
 const { getDb, runAsync, getAsync, allAsync } = require('./db');
 
+// Sprint 4 Task 1: allow LLM service to talk to deployed client-service via HTTP
+// In production, we prefer calling the client-service API instead of writing
+// to a separate local SQLite file inside the LLM microservice.
+const CLIENT_API_BASE = process.env.CLIENT_API_BASE || "";
+
 // List events with tickets available
 async function listAvailableEvents() {
+  // If we have a client-service base URL (production deployment),
+  // delegate to the client-service HTTP API so both flows stay in sync.
+  if (CLIENT_API_BASE) {
+    const res = await fetch(`${CLIENT_API_BASE}/api/client/events`);
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch events from client-service (status ${res.status})`
+      );
+    }
+    return res.json();
+  }
+
+  // Local/dev fallback: read directly from this service's SQLite DB
   const db = await getDb();
   return allAsync(
     db,
@@ -24,13 +42,45 @@ async function getEventByNameApprox(name) {
     [`%${String(name || '').toLowerCase()}%`]
   );
 }
+
 // Get event by ID
 async function getEventById(id) {
   const db = await getDb();
   return getAsync(db, `SELECT * FROM events WHERE id = ?`, [id]);
 }
+
 // Confirm a booking
 async function confirmBooking({ eventId, quantity }) { //confirms booking
+
+  // Sprint 4 Task 1: in production, delegate booking to the client-service
+  // so the tickets_available seen by the frontend stay in sync.
+  if (CLIENT_API_BASE) {
+    const res = await fetch(`${CLIENT_API_BASE}/api/client/purchase`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventId, quantity })
+    });
+
+    if (!res.ok) {
+      let errBody = {};
+      try {
+        errBody = await res.json();
+      } catch (_) {}
+      const msg = errBody.error || `Client-service purchase failed (${res.status})`;
+      const err = new Error(msg);
+      err.status = res.status;
+      throw err;
+    }
+
+    const data = await res.json();
+    // client-service typically returns { event: {...} } or similar
+    if (data && data.event) {
+      return { event: data.event };
+    }
+    return data;
+  }
+
+  // Local/dev fallback: perform the transactional update on this service's DB
   const db = await getDb(); //get database connection
 
   // booking steps and fallbacks
