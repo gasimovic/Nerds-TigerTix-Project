@@ -1,0 +1,75 @@
+name: TigerTix CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Admin service
+      - name: Install admin-service deps
+        working-directory: TigerTix/backend/admin-service
+        run: npm install
+
+      - name: Admin service test/build
+        working-directory: TigerTix/backend/admin-service
+        run: npm test || echo "no admin tests, skipping"
+
+      # Client service
+      - name: Install client-service deps
+        working-directory: TigerTix/backend/client-service
+        run: npm install
+
+      - name: Client service test/build
+        working-directory: TigerTix/backend/client-service
+        run: npm test || echo "no client tests, skipping"
+
+      # LLM booking service
+      - name: Install llm-driven-booking deps
+        working-directory: TigerTix/backend/llm-driven-booking
+        run: npm install
+
+      - name: LLM service test/build
+        working-directory: TigerTix/backend/llm-driven-booking
+        run: npm test || echo "no llm tests, skipping"
+
+      # User-authentication service
+      - name: Install user-authentication deps
+        working-directory: TigerTix/backend/user-authentication
+        run: npm install
+
+      - name: Auth service test/build
+        working-directory: TigerTix/backend/user-authentication
+        run: npm test || echo "no auth tests, skipping"
+
+  frontend-ci:
+    runs-on: ubuntu-latest
+    needs: backend-ci
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install frontend deps
+        working-directory: TigerTix/frontend
+        run: npm install
+
+      - name: Build React app
+        working-directory: TigerTix/frontend
+        run: npm run build

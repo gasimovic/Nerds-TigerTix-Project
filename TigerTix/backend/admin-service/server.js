@@ -1,4 +1,4 @@
-/**
+/****
  * server.js
  * Express server for the TigerTix Admin microservice.
  * Responsibilities:
@@ -34,6 +34,7 @@ app.use((err, _req, res, _next) => {
   console.error('Unhandled error:', err);
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });
+
 
 const PORT = process.env.PORT || 5001;
 

@@ -1,4 +1,3 @@
-
 //In this File:
 // Sprint 2 Task1- Natural-Language Event Query & Booking -Endpoint Setup
 require('dotenv').config();
@@ -22,6 +21,7 @@ app.use((err, _req, res, _next) => {
   console.error('Unhandled error:', err);
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' }); // return error response
 });
+
 
 const PORT = process.env.PORT || 7001; //port to 7001
 

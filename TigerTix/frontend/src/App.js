@@ -3,6 +3,14 @@ import React, { useEffect, useState } from "react"; // React library
 import "./App.css"; // Import CSS
 import SpeechToText from "./SpeechToText";
 
+// === Sprint 4: Environment-based API base URLs (frontend deployment ready) ===
+const CLIENT_API_BASE =
+  process.env.REACT_APP_CLIENT_API_BASE || "http://localhost:6001";
+const LLM_API_BASE =
+  process.env.REACT_APP_LLM_API_BASE || "http://localhost:7001";
+const AUTH_API_BASE =
+  process.env.REACT_APP_AUTH_API_BASE || "http://localhost:9001";
+
 // Main application
 /*
 Input: None
@@ -33,7 +41,7 @@ function App() {
     const textToSend = (textOverride ?? llmText);
     setLlmBusy(true); setLlmMsg("");
     try {
-      const res = await fetch("http://localhost:7001/api/llm/parse", {
+      const res = await fetch(`${LLM_API_BASE}/api/llm/parse`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: textToSend })
@@ -55,7 +63,7 @@ function App() {
         setLlmMsg("Nothing to confirm");
         return;
       }
-      const res = await fetch("http://localhost:7001/api/llm/confirm", {
+      const res = await fetch(`${LLM_API_BASE}/api/llm/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -100,7 +108,7 @@ function App() {
     e.preventDefault();
     setAuthError("");
     try {
-      const res = await fetch("http://localhost:9001/api/auth/register", {
+      const res = await fetch(`${AUTH_API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,7 +136,7 @@ function App() {
     e.preventDefault();
     setAuthError("");
     try {
-      const res = await fetch("http://localhost:9001/api/auth/login", {
+      const res = await fetch(`${AUTH_API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -168,7 +176,7 @@ function App() {
   const loadEvents = () => {
     setLoading(true); // if loading
     // 3.1
-    fetch("http://localhost:6001/api/client/events") // Fetch events from 6001
+    fetch(`${CLIENT_API_BASE}/api/client/events`) // Fetch events from client service
       .then((res) => res.json())
       .then((data) => setEvents(data))
       .catch((err) => console.error("Error fetching events:", err)) //error message and log
@@ -191,7 +199,7 @@ function App() {
   const buyTicket = async (eventId) => {
     try { 
       // 3.2
-      const res = await fetch("http://localhost:6001/api/client/purchase", { // POST to purchase endpoint
+      const res = await fetch(`${CLIENT_API_BASE}/api/client/purchase`, { // POST to purchase endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -27,6 +27,7 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
+
 const PORT = process.env.PORT || 9001;
 
 ensureUserTable()
