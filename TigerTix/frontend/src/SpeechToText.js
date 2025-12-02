@@ -1,5 +1,9 @@
 import { useState, useRef } from "react";
 
+// Use same LLM base as the rest of the frontend (local + deployed)
+const LLM_API_BASE =
+  process.env.REACT_APP_LLM_API_BASE || "http://localhost:7001";
+
 // Voice-enabled conversational interface methods
 /*
 Input: None
@@ -60,7 +64,7 @@ function SpeechToText(props) {
     const getProposedBookingsFromLLM = async (usersSpeechFinal) => {
         if (!usersSpeechFinal?.trim()) return; // returns when the user is not done speaking
 
-        const response = await fetch("http://localhost:7001/api/llm/parse", {
+        const response = await fetch(`${LLM_API_BASE}/api/llm/parse`, {
                 method: "POST", // POST to displayed text endpoint
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({text: usersSpeechFinal})
@@ -85,7 +89,7 @@ function SpeechToText(props) {
                 speak("Nothing to confirm.");
                 return;
             }
-            const res = await fetch("http://localhost:7001/api/llm/confirm", {
+            const res = await fetch(`${LLM_API_BASE}/api/llm/confirm`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
